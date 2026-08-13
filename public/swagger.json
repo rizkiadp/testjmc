@@ -1,0 +1,423 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Documentation - System Kepegawaian & Tunjangan Transport JMC",
+    "version": "1.0.0",
+    "description": "Dokumentasi OpenAPI 3.0 resmi untuk seluruh endpoint RESTful API pada aplikasi JMC Kepegawaian (Auth, User Management, Data Pegawai, Tunjangan Transport, Log Aktivitas, dan Dashboard)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Server Pengembangan Lokal"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "token"
+      }
+    }
+  },
+  "security": [
+    {
+      "cookieAuth": [],
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Autentikasi"],
+        "summary": "Login Pengguna",
+        "description": "Verifikasi kredensial username/email/no_hp, password bcrypt, dan kode captcha.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["identifier", "password", "captchaInput", "captchaId"],
+                "properties": {
+                  "identifier": { "type": "string", "example": "superadmin" },
+                  "password": { "type": "string", "example": "Password123!" },
+                  "captchaInput": { "type": "string", "example": "AB12" },
+                  "captchaId": { "type": "string", "example": "123456789" },
+                  "rememberMe": { "type": "boolean", "example": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Login berhasil, set httpOnly cookie 'token'" },
+          "401": { "description": "Kredensial atau Captcha salah" }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Autentikasi"],
+        "summary": "Logout Pengguna",
+        "description": "Menghapus cookie autentikasi 'token' dan mencatat log aktivitas.",
+        "responses": {
+          "200": { "description": "Logout berhasil" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["Autentikasi"],
+        "summary": "Data Sesi Pengguna Aktif",
+        "responses": {
+          "200": { "description": "Sesi pengguna aktif valid" },
+          "401": { "description": "Sesi tidak terautentikasi" }
+        }
+      }
+    },
+    "/auth/captcha": {
+      "get": {
+        "tags": ["Autentikasi"],
+        "summary": "Generate SVG Captcha Baru",
+        "responses": {
+          "200": { "description": "SVG Captcha dan captchaId" }
+        }
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": ["Manajemen User (Superadmin)"],
+        "summary": "Daftar User (Search, Role Filter, Pagination)",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "role", "in": "query", "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Daftar pengguna terpaginasi" },
+          "403": { "description": "Hanya Superadmin yang diizinkan" }
+        }
+      },
+      "post": {
+        "tags": ["Manajemen User (Superadmin)"],
+        "summary": "Tambah User Baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "id_role"],
+                "properties": {
+                  "id_pegawai": { "type": "integer", "example": 1 },
+                  "username": { "type": "string", "example": "budi_santoso" },
+                  "password": { "type": "string", "example": "Aa9!jQz1nO" },
+                  "id_role": { "type": "integer", "example": 2 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "User berhasil dibuat" },
+          "422": { "description": "Validasi username/pegawai/role gagal" }
+        }
+      }
+    },
+    "/user/{id}": {
+      "put": {
+        "tags": ["Manajemen User (Superadmin)"],
+        "summary": "Update Akun User",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "User berhasil diperbarui" }
+        }
+      },
+      "delete": {
+        "tags": ["Manajemen User (Superadmin)"],
+        "summary": "Hapus Akun User",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "User berhasil dihapus" },
+          "403": { "description": "Dilarang menghapus akun sendiri atau Superadmin aktif terakhir" }
+        }
+      }
+    },
+    "/user/suggest": {
+      "get": {
+        "tags": ["Manajemen User (Superadmin)"],
+        "summary": "Autosuggestion Data Pegawai Terdaftar",
+        "parameters": [
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string", "example": "ahmad" } }
+        ],
+        "responses": {
+          "200": { "description": "Daftar rekomendasi pegawai" }
+        }
+      }
+    },
+    "/user/change-password": {
+      "post": {
+        "tags": ["Profil & Akun"],
+        "summary": "Ubah Password Akun Pengguna",
+        "responses": {
+          "200": { "description": "Password berhasil diubah" }
+        }
+      }
+    },
+    "/pegawai": {
+      "get": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Daftar Pegawai (Search, Filter Jabatan/Kontrak/Masa Kerja, Sort, Pagination)",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "jabatan", "in": "query", "schema": { "type": "string" } },
+          { "name": "statusKontrak", "in": "query", "schema": { "type": "string" } },
+          { "name": "minMasaKerja", "in": "query", "schema": { "type": "integer" } },
+          { "name": "maxMasaKerja", "in": "query", "schema": { "type": "integer" } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortDir", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] } }
+        ],
+        "responses": {
+          "200": { "description": "Daftar pegawai terpaginasi" }
+        }
+      },
+      "post": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Tambah Data Pegawai Baru",
+        "responses": {
+          "200": { "description": "Pegawai berhasil ditambahkan" },
+          "422": { "description": "Validasi NIP/Email/Usia/Status Kawin gagal" }
+        }
+      }
+    },
+    "/pegawai/{id}": {
+      "get": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Detail Data Pegawai",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Biodata lengkap pegawai" }
+        }
+      },
+      "put": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Update Data Pegawai",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Pegawai berhasil diperbarui" }
+        }
+      },
+      "delete": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Hapus Data Pegawai",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Pegawai berhasil dihapus" },
+          "403": { "description": "Dilarang menghapus pegawai ber-role Superadmin" }
+        }
+      }
+    },
+    "/pegawai/bulk-status": {
+      "post": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Bulk Update Status Active/Nonactive Pegawai (Transaction)",
+        "responses": {
+          "200": { "description": "Status masal pegawai berhasil diperbarui" }
+        }
+      }
+    },
+    "/pegawai/export": {
+      "get": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Export Laporan Pegawai (Excel / PDFKit)",
+        "parameters": [
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["excel", "pdf"], "default": "excel" } }
+        ],
+        "responses": {
+          "200": { "description": "File biner Excel / PDF" }
+        }
+      }
+    },
+    "/pegawai/{id}/pdf": {
+      "get": {
+        "tags": ["Data Pegawai (HRD)"],
+        "summary": "Download PDF Biodata Single Pegawai",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "File biner PDF Biodata Pegawai" }
+        }
+      }
+    },
+    "/tunjangan/setting": {
+      "get": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Mendapatkan Daftar & Setting Tarif Tunjangan Transport Aktif (Admin HRD)",
+        "responses": {
+          "200": { "description": "Berhasil mendapatkan konfigurasi tarif tunjangan" },
+          "403": { "description": "Hanya Admin HRD yang diizinkan" }
+        }
+      },
+      "post": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Memperbarui / Tambah Setting Tarif Tunjangan Transport Baru (Admin HRD)",
+        "responses": {
+          "200": { "description": "Setting tunjangan transport berhasil disimpan" },
+          "422": { "description": "Validasi range tarif/jarak/hari gagal" }
+        }
+      }
+    },
+    "/tunjangan/setting/{id}": {
+      "put": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Update Setting Tarif Tunjangan (Admin HRD)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Setting tunjangan berhasil diperbarui" }
+        }
+      },
+      "delete": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Hapus Setting Tarif Tunjangan (Admin HRD)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Setting tunjangan berhasil dihapus" }
+        }
+      }
+    },
+    "/tunjangan": {
+      "get": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Mendapatkan Rekap Tunjangan Transport Per Bulan",
+        "parameters": [
+          { "name": "tahun", "in": "query", "schema": { "type": "integer", "example": 2026 } }
+        ],
+        "responses": {
+          "200": { "description": "Daftar rekap tunjangan transport per bulan" }
+        }
+      }
+    },
+    "/tunjangan/{id}": {
+      "get": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Detail Penerima Tunjangan Transport Periode (Search, Sort, Pagination)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 10 } },
+          { "name": "search", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortBy", "in": "query", "schema": { "type": "string" } },
+          { "name": "sortDir", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] } }
+        ],
+        "responses": {
+          "200": { "description": "Daftar detail penerima tunjangan transport" }
+        }
+      }
+    },
+    "/tunjangan/total-masuk": {
+      "get": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Ambil Daftar Total Hari Masuk Kerja Pegawai",
+        "description": "Mengambil data total hari masuk kerja per bulan/tahun tersimpan untuk Admin HRD.",
+        "parameters": [
+          { "name": "bulan", "in": "query", "schema": { "type": "integer" }, "example": 8 },
+          { "name": "tahun", "in": "query", "schema": { "type": "integer" }, "example": 2026 }
+        ],
+        "responses": {
+          "200": { "description": "Berhasil mengambil daftar total hari masuk pegawai" }
+        }
+      },
+      "post": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Simpan Total Hari Masuk Kerja Pegawai",
+        "description": "Menyimpan atau memperbarui total hari masuk kerja per pegawai untuk periode tertentu.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["id_pegawai", "bulan", "tahun", "total_masuk"],
+                "properties": {
+                  "id_pegawai": { "type": "integer", "example": 1 },
+                  "bulan": { "type": "integer", "example": 8 },
+                  "tahun": { "type": "integer", "example": 2026 },
+                  "total_masuk": { "type": "integer", "example": 22 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Berhasil menyimpan total hari masuk kerja" },
+          "422": { "description": "Validasi gagal (total masuk melebihi hari dalam bulan)" }
+        }
+      }
+    },
+    "/tunjangan/hitung": {
+      "post": {
+        "tags": ["Tunjangan Transport"],
+        "summary": "Hitung Tunjangan Transport Pegawai (Effective Date, Real Presensi, Transaction)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bulan": { "type": "integer", "example": 8 },
+                  "tahun": { "type": "integer", "example": 2026 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Perhitungan tunjangan berhasil diproses dan disimpan dalam transaksi atomik" }
+        }
+      }
+    },
+    "/log": {
+      "get": {
+        "tags": ["Log Aktivitas (Superadmin)"],
+        "summary": "Auditing Log Aktivitas Pengguna",
+        "responses": {
+          "200": { "description": "Daftar log aktivitas pengguna" }
+        }
+      }
+    },
+    "/dashboard": {
+      "get": {
+        "tags": ["Dashboard"],
+        "summary": "Metrik & Widget Ringkasan Dashboard",
+        "responses": {
+          "200": { "description": "Pesan selamat datang dan data widget statistik" }
+        }
+      }
+    }
+  }
+}
