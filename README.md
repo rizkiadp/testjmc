@@ -228,5 +228,3 @@ Untuk mendepoy aplikasi ke server produksi:
 
 ---
 
-## Technical Test Notes
-Aplikasi ini dikembangkan dan dirancang untuk memenuhi **Soal & Aturan Tes Teknis Fullstack JS Programmer Junior JMC** dengan kepatuhan penuh terhadap spesifikasi PRD 1.4.
