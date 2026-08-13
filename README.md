@@ -107,7 +107,7 @@ Jalankan server pengembangan Nuxt:
 ```bash
 npm run dev
 ```
-Akses aplikasi melalui peramban web di: `http://localhost:3000`
+Akses aplikasi melalui Browser web di: `http://localhost:3000`
 
 ---
 
@@ -168,8 +168,8 @@ Seluruh API terstruktur secara RESTful di bawah prefix `/api/`:
 ---
 
 ## Swagger
-Dokumentasi OpenAPI 3.0 interaktif dapat diakses saat aplikasi berjalan pada peramban web:
-👉 **`http://localhost:3000/api/docs`** (Atau file fisik `public/swagger.json`).
+Dokumentasi OpenAPI 3.0 interaktif dapat diakses saat aplikasi berjalan pada Browser web:
+ **`http://localhost:3000/api/docs`** (Atau file fisik `public/swagger.json`).
 
 ---
 
