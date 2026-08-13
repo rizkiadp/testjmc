@@ -272,9 +272,9 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Data for `user`
-INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (1, 'superadmin', '$2b$10$bhoPM3B/Uk6kiPdd73Ul7Ov0ux09w2TLAg2tiauT0D6mXQIam.5ia', 'Superadmin', 'superadmin@company.com', '+628110000001', 1, NULL, 0, '2026-08-12 17:51:25', '2026-08-12 16:41:39', '2026-08-12 17:51:25');
-INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (4, 'sitiaminah', '$2b$10$LkYhZAUAxcrjKeM1CBsN8OnrzuHi79yUc2GoFeTLyKwkOsqw4Sfvy', 'Siti Aminah', NULL, NULL, 2, 2, 0, NULL, '2026-08-12 16:56:02', '2026-08-12 17:50:27');
-INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (5, 'ahmadrizki', '$2b$10$/a6t4.yPCxNQcOkPo7.9xud/jprZJZpWzwxwtuj4SuylHsCTT.DCu', 'Ahmad Rizki', NULL, NULL, 3, 3, 0, '2026-08-12 17:50:52', '2026-08-12 16:57:57', '2026-08-12 17:50:52');
+INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (1, 'superadmin', '$2b$10$oUZ.iFzaUbTZBmIMErPZ1Of5HnQkCIRuSghA.5WWSOLqD4yYYcdma', 'Superadmin', 'superadmin@company.com', '+628110000001', 1, NULL, 0, '2026-08-12 17:51:25', '2026-08-12 16:41:39', '2026-08-12 17:51:25');
+INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (4, 'sitiaminah', '$2b$10$oUZ.iFzaUbTZBmIMErPZ1Of5HnQkCIRuSghA.5WWSOLqD4yYYcdma', 'Siti Aminah', NULL, NULL, 2, 2, 0, NULL, '2026-08-12 16:56:02', '2026-08-12 17:50:27');
+INSERT INTO `user` (`id`, `username`, `password_hash`, `nama`, `email`, `nomor_hp`, `id_role`, `id_pegawai`, `disabled`, `last_login`, `created_at`, `updated_at`) VALUES (5, 'ahmadrizki', '$2b$10$oUZ.iFzaUbTZBmIMErPZ1Of5HnQkCIRuSghA.5WWSOLqD4yYYcdma', 'Ahmad Rizki', NULL, NULL, 3, 3, 0, '2026-08-12 17:50:52', '2026-08-12 16:57:57', '2026-08-12 17:50:52');
 
 DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE `user_role` (
