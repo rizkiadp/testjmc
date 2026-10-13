@@ -103,6 +103,32 @@
                 </div>
               </div>
             </div>
+
+            <!-- Riwayat Pekerjaan -->
+            <div class="col-12">
+              <div class="datagrid-item">
+                <div class="datagrid-title mb-2">Riwayat Pekerjaan</div>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered mb-0">
+                    <thead>
+                      <tr>
+                        <th>Nama Perusahaan</th>
+                        <th>Masa Kerja</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="!pegawai.riwayat_pekerjaan || pegawai.riwayat_pekerjaan.length === 0">
+                        <td colspan="2" class="text-muted text-center">Belum ada riwayat pekerjaan</td>
+                      </tr>
+                      <tr v-for="(r, idx) in pegawai.riwayat_pekerjaan" :key="r.id || idx">
+                        <td>{{ r.perusahaan || r.nama_perusahaan }}</td>
+                        <td>{{ (r.masa_bekerja != null ? r.masa_bekerja : r.masa_kerja) }} Tahun</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

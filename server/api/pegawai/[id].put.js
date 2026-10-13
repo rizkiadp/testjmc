@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     nip, nama_pegawai, email, nomor_hp, tempat_lahir, tanggal_lahir,
     id_kecamatan, alamat_lengkap, jarak_rumah_kantor, status_kawin,
     jumlah_anak, tanggal_masuk, id_jabatan, id_departemen, status_kontrak,
-    jenis_kelamin, status, foto_pegawai, pendidikan
+    jenis_kelamin, status, foto_pegawai, pendidikan, riwayat_pekerjaan
   } = body || {};
 
   let usia = 0;
@@ -63,6 +63,22 @@ export default defineEventHandler(async (event) => {
       }
     }
   }
+
+  // Update riwayat kepegawaian: delete old & insert new
+  await query('DELETE FROM riwayat_kepegawaian WHERE id_pegawai = ?', [id]);
+  if (Array.isArray(riwayat_pekerjaan) && riwayat_pekerjaan.length > 0) {
+    for (const r of riwayat_pekerjaan) {
+      const perusahaan = r.perusahaan || r.nama_perusahaan;
+      const masa_bekerja = r.masa_bekerja ?? r.masa_kerja;
+      if (perusahaan && masa_bekerja !== undefined && masa_bekerja !== '') {
+        await query(
+          `INSERT INTO riwayat_kepegawaian (id_pegawai, perusahaan, masa_bekerja) VALUES (?, ?, ?)`,
+          [id, perusahaan, parseInt(masa_bekerja, 10) || 0]
+        );
+      }
+    }
+  }
+
 
   await logActivity(event, user, 'Update Pegawai', `Memperbarui data pegawai ID: ${id}`);
 

@@ -136,6 +136,47 @@
                 </div>
               </div>
             </div>
+
+            <!-- Form Riwayat Pekerjaan Dinamis -->
+            <div class="col-12 mt-3">
+              <div class="card border">
+                <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                  <span class="fw-bold small">Riwayat Pekerjaan</span>
+                  <button type="button" class="btn btn-sm btn-outline-primary" @click="addRiwayatPekerjaan">
+                    <IconPlus size="16" /> Tambah (+)
+                  </button>
+                </div>
+                <div class="table-responsive p-0">
+                  <table class="table table-sm align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Nama Perusahaan</th>
+                        <th>Masa Kerja (Tahun)</th>
+                        <th width="40"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-if="!form.riwayat_pekerjaan || form.riwayat_pekerjaan.length === 0">
+                        <td colspan="3" class="text-center text-muted py-2 small">Belum ada riwayat pekerjaan (klik Tambah jika ada)</td>
+                      </tr>
+                      <tr v-for="(r, idx) in form.riwayat_pekerjaan" :key="idx">
+                        <td>
+                          <input v-model="r.perusahaan" type="text" placeholder="Contoh: PT Maju Bersama" class="form-control form-control-sm" required />
+                        </td>
+                        <td>
+                          <input v-model="r.masa_bekerja" type="number" min="0" placeholder="Contoh: 2" class="form-control form-control-sm" required />
+                        </td>
+                        <td class="text-center">
+                          <button type="button" class="btn btn-icon btn-sm btn-ghost-danger" @click="removeRiwayatPekerjaan(idx)">
+                            <IconXboxXFilled size="18" />
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -281,7 +322,8 @@ const form = ref({
   status: 'Aktif',
   pendidikan: [
     { tingkat_pendidikan: 'S1', nama_sekolah: '', tahun_lulus: 2020 }
-  ]
+  ],
+  riwayat_pekerjaan: []
 });
 
 const calculateAge = () => {
@@ -306,6 +348,20 @@ const onKecamatanChange = () => {
 
 const addPendidikan = () => {
   form.value.pendidikan.push({ tingkat_pendidikan: '', nama_sekolah: '', tahun_lulus: '' });
+};
+
+const addRiwayatPekerjaan = () => {
+  if (!form.value.riwayat_pekerjaan) {
+    form.value.riwayat_pekerjaan = [];
+  }
+  form.value.riwayat_pekerjaan.push({
+    perusahaan: '',
+    masa_bekerja: ''
+  });
+};
+
+const removeRiwayatPekerjaan = (index) => {
+  form.value.riwayat_pekerjaan.splice(index, 1);
 };
 
 const removePendidikan = (index) => {
@@ -379,9 +435,18 @@ const fetchDetail = async () => {
         id_departemen: d.id_departemen || '',
         status_kontrak: d.status_kontrak || 'PKWTT',
         status: d.status || 'Aktif',
+       
         pendidikan: d.pendidikan && d.pendidikan.length > 0 ? d.pendidikan : [
-          { tingkat_pendidikan: 'S1', nama_sekolah: '', tahun_lulus: 2020 }
-        ]
+          { tingkat_pendidikan: 'S1', nama_sekolah: '', tahun_lulus: 2020 }],
+        
+
+        riwayat_pekerjaan:
+          d.riwayat_pekerjaan?.map(r => ({
+            id: r.id,
+            id_pegawai: r.id_pegawai,
+            perusahaan: r.perusahaan || r.nama_perusahaan || '',
+            masa_bekerja: r.masa_bekerja != null ? r.masa_bekerja : (r.masa_kerja || '')
+          })) || []
       };
       if (d.id_kecamatan) {
         onKecamatanChange();

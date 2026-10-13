@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     nip, nama_pegawai, email, nomor_hp, tempat_lahir, tanggal_lahir,
     id_kecamatan, alamat_lengkap, jarak_rumah_kantor, status_kawin,
     jumlah_anak, tanggal_masuk, id_jabatan, id_departemen, status_kontrak,
-    jenis_kelamin, status, foto_pegawai, pendidikan
+    jenis_kelamin, status, foto_pegawai, pendidikan, riwayat_pekerjaan
   } = body || {};
 
   // Calculate age automatically from tanggal_lahir
@@ -52,6 +52,20 @@ export default defineEventHandler(async (event) => {
         await query(
           `INSERT INTO pegawai_pendidikan (id_pegawai, tingkat_pendidikan, nama_sekolah, tahun_lulus) VALUES (?, ?, ?, ?)`,
           [pegawaiId, p.tingkat_pendidikan, p.nama_sekolah, p.tahun_lulus || null]
+        );
+      }
+    }
+  }
+
+
+  if (Array.isArray(riwayat_pekerjaan) && riwayat_pekerjaan.length > 0) {
+    for (const r of riwayat_pekerjaan) {
+      const perusahaan = r.perusahaan || r.nama_perusahaan;
+      const masa_bekerja = r.masa_bekerja ?? r.masa_kerja;
+      if (perusahaan && masa_bekerja !== undefined && masa_bekerja !== '') {
+        await query(
+          `INSERT INTO riwayat_kepegawaian (id_pegawai, perusahaan, masa_bekerja) VALUES (?, ?, ?)`,
+          [pegawaiId, perusahaan, parseInt(masa_bekerja, 10) || 0]
         );
       }
     }

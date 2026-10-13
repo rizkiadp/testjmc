@@ -32,8 +32,17 @@ export default defineEventHandler(async (event) => {
 
   pegawai.pendidikan = pendidikan;
 
+
+  const riwayat_pekerjaan = await query(
+    `SELECT id, id_pegawai, perusahaan, masa_bekerja FROM riwayat_kepegawaian WHERE id_pegawai = ? ORDER BY id ASC`,
+    [id]
+  );
+
+  pegawai.riwayat_pekerjaan = riwayat_pekerjaan;
+
   return {
     success: true,
     data: pegawai
   };
 });
+

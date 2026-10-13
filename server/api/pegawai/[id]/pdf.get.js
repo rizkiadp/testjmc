@@ -31,6 +31,12 @@ export default defineEventHandler(async (event) => {
     [pegawai.id]
   );
 
+  // Fetch riwayat kepegawaian list
+  const riwayatPekerjaan = await query(
+    `SELECT * FROM riwayat_kepegawaian WHERE id_pegawai = ? ORDER BY id ASC`,
+    [pegawai.id]
+  );
+
   // Generate PDF document with PDFKit
   const doc = new PDFDocument({ margin: 40, size: 'A4' });
   const chunks = [];
@@ -112,6 +118,29 @@ export default defineEventHandler(async (event) => {
     });
   } else {
     doc.font('Helvetica-Oblique').fontSize(9).fillColor('#94a3b8').text('Belum ada data riwayat pendidikan', 50, y);
+    y += 16;
+  }
+
+  // Riwayat Pekerjaan Section
+  y += 10;
+  doc.rect(40, y, 515, 20).fill('#f1f5f9');
+  doc.fontSize(10).font('Helvetica-Bold').fillColor('#1e293b').text('RIWAYAT PEKERJAAN', 50, y + 5);
+  y += 26;
+
+  doc.font('Helvetica-Bold').fontSize(9).fillColor('#64748b');
+  doc.text('Nama Perusahaan', 50, y + 4, { width: 350 });
+  doc.text('Masa Kerja', 410, y + 4, { width: 100, align: 'center' });
+  y += 20;
+
+  if (riwayatPekerjaan && riwayatPekerjaan.length > 0) {
+    doc.font('Helvetica').fontSize(9).fillColor('#333333');
+    riwayatPekerjaan.forEach((r) => {
+      doc.text(r.perusahaan || '-', 50, y, { width: 350 });
+      doc.text(`${r.masa_bekerja ?? '-'} Tahun`, 410, y, { width: 100, align: 'center' });
+      y += 16;
+    });
+  } else {
+    doc.font('Helvetica-Oblique').fontSize(9).fillColor('#94a3b8').text('Belum ada data riwayat pekerjaan', 50, y);
     y += 16;
   }
 
